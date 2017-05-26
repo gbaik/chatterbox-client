@@ -20,13 +20,31 @@
     </script>
     <!-- your scripts -->
     <script src="env/config.js"></script>
+    <script src="scripts/view.js"></script>
     <script src="scripts/app.js"></script>
   </head>
   <body>
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
+
+      <!-- Drop down menu -->
+
+      <form>
+      Room:
+        <select>
+          <option value="a">Room 1</option>
+          <option value="b">Room 2</option>
+          <option value="c">Room 3</option>
+        </select>
+      </form>
+
     </div>
-    <div id="chats"></div>
+    <div id="chats">
+      <!-- Message History -->
+
+      <!-- Messages -->
+      <input class="currentMessage"/>
+    </div>
   </body>
 </html>
