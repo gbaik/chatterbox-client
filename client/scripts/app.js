@@ -32,13 +32,37 @@ var fetch = function() {
   });
 };
 
+var clearMessages = function() {
+  $('#chats').empty();
+};
+
+var renderMessage = function(message) {
+  let newMessageDiv = $('<div></div>');
+  let nameDiv = $('<div></div>');
+  let contentDiv = $('<div></div>');
+  let name = message.username;
+  let content = message.text;
+  //here
+  nameDiv.append(name);
+  contentDiv.append(content);
+  newMessageDiv.append(nameDiv);
+  newMessageDiv.append(content);
+  $('#chats').append(newMessageDiv);
+};
+
+var renderRoom = function(roomName) {
+  let newRoomOption = $('<option>' + roomName + '</option>');
+  $('select').append(newRoomOption);
+};
 
 var app = {
   init: function() {},
   send: send,
   fetch: fetch,
   server: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages/',
-
+  clearMessages: clearMessages,
+  renderMessage: renderMessage,
+  renderRoom: renderRoom
 };
 
 
