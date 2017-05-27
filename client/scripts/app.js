@@ -11,7 +11,7 @@ var send = function(message) {
     data: JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
-      app.fetch();
+      app.fetch(message.roomname);
       console.log('chatterbox: Message sent');
     },
     error: function (data) {
@@ -21,7 +21,7 @@ var send = function(message) {
   });
 };
 
-var fetch = function() {
+var fetch = function(currentRoom = undefined) {
   $.ajax({
     url: app.server,
     type: 'GET',
@@ -30,7 +30,15 @@ var fetch = function() {
     success: function (data) {
       //iterate through the array
       _.each(data.results, (messageObj) => {
-        app.renderMessage(messageObj);
+        //this will be the default path, render everything if currentRoom not specified
+        if (currentRoom === undefined || currentRoom === 'All') {
+          app.renderMessage(messageObj);
+          app.renderRoom(messageObj.roomname);
+        } else {
+          if (messageObj.roomname === currentRoom) {
+            app.renderMessage(messageObj);
+          }
+        }
       });
       console.log('chatterbox: Message received', data);
     },
@@ -41,7 +49,7 @@ var fetch = function() {
 };
 
 var clearMessages = function() {
-  $('#chats').empty();
+  $('.message').empty();
 };
 
 var renderMessage = function(message) {
@@ -59,7 +67,7 @@ var renderMessage = function(message) {
   let newMessageDiv = $('<div class = "message"></div>');
   let nameDiv = $('<div class="username"></div>');
   let contentDiv = $('<div></div>');
-  //here
+
   nameDiv.append(name);
   contentDiv.append(content);
   newMessageDiv.append(nameDiv);
@@ -67,9 +75,12 @@ var renderMessage = function(message) {
   $('#chats').append(newMessageDiv);
 };
 
-var renderRoom = function(roomName) {
-  let newRoomOption = $('<option>' + roomName + '</option>');
-  $('select').append(newRoomOption);
+var renderRoom = function(roomname) {
+  if (app.roomList[roomname] !== true) {
+    let newRoomOption = $('<option>' + roomname + '</option>');
+    $('select').append(newRoomOption);
+  }
+  app.roomList[roomname] = true;
 };
 
 var handleUsernameClick = function(event) {
@@ -88,8 +99,6 @@ var handleUsernameClick = function(event) {
       $username.css('font-weight', 'Bold');
     }
   });
-
-
 };
 
 var handleSubmit = function (event) {
@@ -108,9 +117,25 @@ var handleSubmit = function (event) {
   app.send(messageObj);
 };
 
+var handleRoomChange = function (event) {
+  console.log('select el changed');
+  // let room = event.target;
+  // console.log(room);
+  let roomName = $('.roomOptions option:selected').text();
+  //clear current messages from the screen
+  app.clearMessages();
+  //fetch the messages again from the server
+  app.fetch(roomName);
+  //render only the messages that have a roomname property that matches roomName
+  // i think this would require providing a default argument to the fetch method
+  // assuming you don't have a roomname -- or if roomname param is undefined,
+  // then simply render everything
+};
+
 var attachEventHandlers = function() {
   $('#chats').on('click', app.handleUsernameClick);
   $('#send .submit').on('submit', app.handleSubmit);
+  $('select').on('change', app.handleRoomChange);
 };
 
 
@@ -127,8 +152,18 @@ var app = {
   renderMessage: renderMessage,
   renderRoom: renderRoom,
   handleUsernameClick: handleUsernameClick,
-  handleSubmit, handleSubmit,
-  friendList: {}
+  handleSubmit: handleSubmit,
+  handleRoomChange: handleRoomChange,
+  friendList: {},
+  roomList: {}
 };
 
 $(document).ready(app.init);
+
+/*
+tried to add event listener to option -- no options there by default
+if you add event listener to the select element, though, it will grab the text
+from whatever option was visually already there in the select box
+
+need to wait until the options are rendered fully
+*/
