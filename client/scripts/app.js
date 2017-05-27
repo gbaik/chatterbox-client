@@ -91,9 +91,17 @@ var handleUsernameClick = function(event) {
 
 };
 
+var handleSubmit = function (event) {
+  event.preventDefault();
+  let msg = $('textarea').val();
+  console.log(msg);
+};
+
 var attachEventHandlers = function() {
   $("#chats").on("click", app.handleUsernameClick);
+  $("#send .submit").on("submit", app.handleSubmit);
 };
+
 
 var app = {
   init: function() {
@@ -108,6 +116,7 @@ var app = {
   renderMessage: renderMessage,
   renderRoom: renderRoom,
   handleUsernameClick: handleUsernameClick,
+  handleSubmit, handleSubmit,
   friendList: {}
 };
 
