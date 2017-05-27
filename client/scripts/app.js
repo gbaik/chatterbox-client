@@ -44,11 +44,20 @@ var clearMessages = function() {
 };
 
 var renderMessage = function(message) {
+  const bannedWords = ['<', '>', 'script', 'for(', 'for (', 'console'];
+  let name = message.username;
+  let content = message.text;
+  for (let i = 0; i < bannedWords.length; i++) {
+    if (name && content) {
+      if (name.indexOf(bannedWords[i]) !== -1 || content.indexOf(bannedWords[i]) !== -1) {
+        return;
+      }
+    }
+  }
+
   let newMessageDiv = $('<div class = "message"></div>');
   let nameDiv = $('<div class="username"></div>');
   let contentDiv = $('<div></div>');
-  let name = message.username;
-  let content = message.text;
   //here
   nameDiv.append(name);
   contentDiv.append(content);
@@ -74,7 +83,6 @@ var handleUsernameClick = function(event) {
   $.each(allUsernames, (usernameDiv) => {
     let username = allUsernames[usernameDiv];
     let $username = $(username);
-    console.log($username.text());
     if (app.friendList[$username.text()]) {
       $username.css("font-weight","Bold");
     }
@@ -84,7 +92,7 @@ var handleUsernameClick = function(event) {
 };
 
 var attachEventHandlers = function() {
-  $('#chats').on('click', handleUsernameClick);
+  $("#chats").on("click", app.handleUsernameClick);
 };
 
 var app = {
@@ -103,4 +111,4 @@ var app = {
   friendList: {}
 };
 
-app.init();
+$(document).ready(app.init);
