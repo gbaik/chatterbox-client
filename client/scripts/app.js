@@ -103,6 +103,4 @@ var app = {
   friendList: {}
 };
 
-
-
-
+app.init();
