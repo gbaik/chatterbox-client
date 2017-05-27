@@ -2,6 +2,7 @@
 // view.init();
 // console.log('app is loading');
 
+
 var send = function(message) {
   $.ajax({
   // This is the url you should use to communicate with the parse API server.
@@ -10,6 +11,7 @@ var send = function(message) {
     data: JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
+      app.fetch();
       console.log('chatterbox: Message sent');
     },
     error: function (data) {
@@ -22,11 +24,16 @@ var send = function(message) {
 var fetch = function() {
   $.ajax({
     url: app.server,
+    type: 'GET',
+    contentType: 'application/json',
     success: function (data) {
+      //iterate through the array
+      _.each(data.results, (messageObj) => {
+        app.renderMessage(messageObj);
+      });
       console.log('chatterbox: Message received', data);
     },
     error: function (data) {
-      console.log(app.server);
       console.error('chatterbox: Failed to receive message', data);
     }
   });
@@ -37,8 +44,8 @@ var clearMessages = function() {
 };
 
 var renderMessage = function(message) {
-  let newMessageDiv = $('<div></div>');
-  let nameDiv = $('<div></div>');
+  let newMessageDiv = $('<div class = "message"></div>');
+  let nameDiv = $('<div class="username"></div>');
   let contentDiv = $('<div></div>');
   let name = message.username;
   let content = message.text;
@@ -55,14 +62,45 @@ var renderRoom = function(roomName) {
   $('select').append(newRoomOption);
 };
 
+var handleUsernameClick = function(event) {
+  let element = event.target;
+  let $element = $(element);
+  if ($element.attr('class') === 'username') {
+    let friendName = $element.text();
+    app.friendList[friendName] = true;
+  }
+  let allUsernames = $('.username');
+
+  $.each(allUsernames, (usernameDiv) => {
+    let username = allUsernames[usernameDiv];
+    let $username = $(username);
+    console.log($username.text());
+    if (app.friendList[$username.text()]) {
+      $username.css("font-weight","Bold");
+    }
+  });
+
+
+};
+
+var attachEventHandlers = function() {
+  $('#chats').on('click', handleUsernameClick);
+};
+
 var app = {
-  init: function() {},
+  init: function() {
+    //fetch the data from the server
+    app.fetch();
+    attachEventHandlers();
+  },
   send: send,
   fetch: fetch,
   server: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages/',
   clearMessages: clearMessages,
   renderMessage: renderMessage,
-  renderRoom: renderRoom
+  renderRoom: renderRoom,
+  handleUsernameClick: handleUsernameClick,
+  friendList: {}
 };
 
 
